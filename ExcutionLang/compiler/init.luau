@@ -92,7 +92,7 @@ local function MakeInstruction(Line:string , LineNumber:number , TempCache: {[st
       local temp , Passed , returnedValue = SpecialValue(TempCache, value)
 
       if Passed ~= true then
-        error(Passed)
+        error(`{Passed} Line {LineNumber}`)
       end
 
       if returnedValue then
@@ -108,7 +108,7 @@ local function MakeInstruction(Line:string , LineNumber:number , TempCache: {[st
           local temp , Passed , returnedValue = SpecialValue(TempCache, V)
           print(temp . passed , 109)
           if Passed ~= true then
-            error(Passed)
+            error(`{Passed} Line {LineNumber}`)
           end
 
           if returnedValue then
@@ -117,11 +117,8 @@ local function MakeInstruction(Line:string , LineNumber:number , TempCache: {[st
 
           TempCache = temp
         end
-        print(V , 120 , type(V) , tonumber(V))
       end
     end
-
-    print(value , 124 , type(value) , tonumber(value))
 
     if functions:FindFirstChild(instruction.instruction) then
       local Info = require(functions:FindFirstChild(instruction.instruction))
@@ -130,7 +127,7 @@ local function MakeInstruction(Line:string , LineNumber:number , TempCache: {[st
         local temp, e = Info.CompilerCheckCallback(TempCache , value)
 
         if e ~= true then
-          error(e)
+          error(error(`{e} Line {LineNumber}`))
         end
         TempCache = temp
       end
@@ -149,7 +146,7 @@ return function(Code: string ) : types.compiledCode
 
   local tempCache = {}
 
-  print(Code)
+  --print(Code)
   for i , V in Code:split(";") do
     local instruction = nil
     instruction , tempCache = MakeInstruction(V , i ,tempCache)
@@ -157,7 +154,7 @@ return function(Code: string ) : types.compiledCode
     table.insert(template.instructions , instruction)
   end
 
-  print(template)
+  --print(template)
 
 
   return template
