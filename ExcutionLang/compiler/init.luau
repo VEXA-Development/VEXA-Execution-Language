@@ -1,5 +1,4 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local TemporaryCageMeshProvider = game:GetService("TemporaryCageMeshProvider")
 local SpecialValue = require(ReplicatedStorage.Shared.Util.SpecialValue).compiler
 local Config = require(script.Parent.constances.Config)
 local types = require(script.Parent.constances.Types)
