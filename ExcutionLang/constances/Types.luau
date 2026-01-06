@@ -15,12 +15,14 @@ export type compiledCode = {
 
 
 export type func = {
-  callback: (compiledCode , valuesWstring) -> compiledCode
+  callback: (compiledCode , valuesWstring) -> compiledCode,
+  CompilerCheckCallback: ({[string]:boolean} , string) -> {[string]:boolean} | boolean?,
 }
 
 
 export type SpecialValue = {
-  callback: (compiledCode , valuesWstring) -> values
+  callback: (compiledCode , valuesWstring) -> values,
+  CompilerCheckCallback: ({[string]:boolean} , string) -> {[string]:boolean} | boolean?,
 }
 
 

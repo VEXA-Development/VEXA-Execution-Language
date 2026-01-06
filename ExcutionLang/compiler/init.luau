@@ -1,3 +1,6 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TemporaryCageMeshProvider = game:GetService("TemporaryCageMeshProvider")
+local SpecialValue = require(ReplicatedStorage.Shared.Util.SpecialValue).compiler
 local Config = require(script.Parent.constances.Config)
 local types = require(script.Parent.constances.Types)
 
@@ -7,8 +10,8 @@ local functions = script.Parent.constances.functions
 local OgPrint = print
 local OgError = error
 
-local function print(Text:any)
-  OgPrint(`[{script.Name}]` , Text)
+local function print(...)
+  OgPrint(`[{script.Name}]` , ...)
 end
 
 local function error(Text:any , level)
@@ -51,7 +54,7 @@ local function RemoveWhiteSpace(Code:string)
 end
 
 
-local function MakeInstruction(Line:string)
+local function MakeInstruction(Line:string , LineNumber:number , TempCache: {[string]:boolean})
   if Line == "" then
     return nil
   end
@@ -77,12 +80,64 @@ local function MakeInstruction(Line:string)
 
   if Config.CompilerFunctionCheck then
     if functions:FindFirstChild(instruction.instruction) == nil then
-      error(`"{instruction.instruction}" Not found in functions folder`)
+      error(`"{instruction.instruction}" Not found in functions folder. Line {LineNumber}`)
     end
   end
 
+  if Config.CompilerCacheCheck then
+    local value = instruction.value
 
-  return instruction
+
+    if typeof(value) == "string" and tonumber(value) == nil then
+      local temp , Passed , returnedValue = SpecialValue(TempCache, value)
+
+      if Passed ~= true then
+        error(Passed)
+      end
+
+      if returnedValue then
+        value = returnedValue
+      end
+
+      TempCache = temp
+
+    elseif typeof(value) == "table" then
+
+      for m , V in value do 
+        if typeof(V) == "string" and (tonumber(V) == nil) then
+          local temp , Passed , returnedValue = SpecialValue(TempCache, V)
+          print(temp . passed , 109)
+          if Passed ~= true then
+            error(Passed)
+          end
+
+          if returnedValue then
+            value = returnedValue
+          end
+
+          TempCache = temp
+        end
+        print(V , 120 , type(V) , tonumber(V))
+      end
+    end
+
+    print(value , 124 , type(value) , tonumber(value))
+
+    if functions:FindFirstChild(instruction.instruction) then
+      local Info = require(functions:FindFirstChild(instruction.instruction))
+
+      if Info.CompilerCheckCallback then
+        local temp, e = Info.CompilerCheckCallback(TempCache , value)
+
+        if e ~= true then
+          error(e)
+        end
+        TempCache = temp
+      end
+    end
+  end
+
+  return instruction,TempCache
 end
 
 
@@ -92,10 +147,14 @@ return function(Code: string ) : types.compiledCode
 
   Code = RemoveWhiteSpace(Code)
 
+  local tempCache = {}
 
   print(Code)
-  for _ , V in Code:split(";") do
-    table.insert(template.instructions , MakeInstruction(V))
+  for i , V in Code:split(";") do
+    local instruction = nil
+    instruction , tempCache = MakeInstruction(V , i ,tempCache)
+
+    table.insert(template.instructions , instruction)
   end
 
   print(template)

@@ -1,36 +1,26 @@
-local SpecialValues = script.Parent.constances.SpecialValues
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local functions = script.Parent.constances.functions
 
 
+local SpecialValue = require(ReplicatedStorage.Shared.Util.SpecialValue).excutor
+local Config = require(ReplicatedStorage.Shared.constances.Config)
 local Types = require(script.Parent.constances.Types)
 
-local function SpecialValue(compiledCode , line:string)
-  local split = line:split(`(`)
-
-  if SpecialValues:FindFirstChild(split[1]) then
-    local Special:Types.SpecialValue = require(SpecialValues:FindFirstChild(split[1]))
-    local value = ""
-
-    if split[2] then
-      if split[2]:split(")")[1]:split(`"`)[2] then
-        value = split[2]:split(")")[1]:split(`"`)[2]
-      end
-    end
 
 
-    return Special.callback(compiledCode, value)
-  else
-    return line:split(`"`)[2]
-  end
-end
-
-
-local function ExcuteInstruction(compiledCode:Types.compiledCode , func: string , value: number | {number} | string)
+local function ExcuteInstruction(compiledCode:Types.compiledCode , func: string , value: number | {number} | string , LineNumber: number)
   if functions:FindFirstChild(func) then
     local funcInfo: Types.func = require(functions:FindFirstChild(func))
     --print(compiledCode)
 
     return funcInfo.callback(compiledCode, value)
+  else
+    if Config.OnErrorStop == false then
+      warn(`{func} Not found. Line {LineNumber}`)
+    else
+      warn(`{func} Not found. Line {LineNumber}`)
+      return false
+    end
   end
   return compiledCode
 end
@@ -53,8 +43,14 @@ return function(compiledCode: Types.compiledCode)
         end
       end
     end
+    local newCompiledCode = ExcuteInstruction(compiledCode , V.instruction , value , i)
 
-    compiledCode = ExcuteInstruction(compiledCode , V.instruction , value)
+    if newCompiledCode == false then
+      return  nil
+    end
+
+
+    compiledCode = ExcuteInstruction(compiledCode , V.instruction , value , i)
   end
 
   --print(compiledCode.ActiveValue)

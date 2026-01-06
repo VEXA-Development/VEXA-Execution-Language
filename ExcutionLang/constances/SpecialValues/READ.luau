@@ -8,5 +8,11 @@ return {
       return compiledCode.cache[value]
     end
     return nil
-  end
+  end,
+  CompilerCheckCallback = function(TempCache , Value)
+    if TempCache[Value] == nil then
+      return TempCache , `{Value} Not Found In cache.`
+    end
+    return TempCache , true
+  end,
 }

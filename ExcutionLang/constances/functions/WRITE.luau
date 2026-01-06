@@ -8,6 +8,10 @@ return {
 
     compiledCode.cache[value] = compiledCode.ActiveValue
 
-  return compiledCode
-end
+    return compiledCode
+  end,
+  CompilerCheckCallback = function(TempCache , Value)
+    TempCache[Value] = true
+    return TempCache , true
+  end
 }
