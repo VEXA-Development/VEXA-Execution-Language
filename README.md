@@ -1,6 +1,6 @@
-# VEXA Execution Language (VEL)
+# VEXA Execution Language Model (VELM)
 
-**VEXA Execution Language (VEL)** is a lightweight, experimental scripting language written in **Luau**, designed for simple value manipulation, caching, and instruction-based execution.
+**VEXA Execution Language Model (VELM)** is a lightweight, experimental scripting language written in **Luau**, designed for simple value manipulation, caching, and instruction-based execution.
 
 It is intentionally minimal, easy to parse, and human-readable — built *because why not*.
 
